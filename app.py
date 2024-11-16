@@ -287,6 +287,60 @@ with tabs[2]:
 with tabs[3]:
     st.header("News")
     st.write("News")
+    import streamlit as st
+    import requests
+    from bs4 import BeautifulSoup
+    import feedparser
+    from datetime import datetime
+
+
+    # Function to extract news from Google News RSS
+    def extract_news_from_google_rss(ticker):
+        """Fetch news articles for a given stock ticker using Google News RSS."""
+        url = f"https://news.google.com/rss/search?q={ticker}+stock&hl=en-US&gl=US&ceid=US:en"
+        feed = feedparser.parse(url)
+        news_articles = []
+        for entry in feed.entries[:15]:  # Limit to the latest 15 articles
+            published_date = datetime(*entry.published_parsed[:6])  # Convert to datetime
+            news_articles.append({"title": entry.title, "url": entry.link, "date": published_date})
+        return news_articles
+
+
+    # Function to fetch and preprocess text
+    def fetch_article_content(url):
+        """Fetch article content using BeautifulSoup."""
+        try:
+            response = requests.get(url)
+            soup = BeautifulSoup(response.content, "html.parser")
+            headline = soup.title.string if soup.title else "No headline"
+            paragraphs = soup.find_all("p")
+            content = " ".join([para.get_text() for para in paragraphs])
+            return headline, content
+        except Exception as e:
+            return None, None
+
+
+    # App layout and styling
+    st.title("Stock News Fetcher")
+    ticker_symbol = st.text_input("Enter stock ticker (e.g., AAPL, MSFT):", key="ticker")
+
+    if ticker_symbol:
+        try:
+            # Fetch news for the given ticker automatically
+            news = extract_news_from_google_rss(ticker_symbol)
+            if news:
+                st.subheader(f"Latest News for {ticker_symbol.upper()}")
+                for article in news:
+                    st.write(f"**{article['title']}**")
+                    st.write(f"[Read more]({article['url']}) - {article['date'].strftime('%Y-%m-%d %H:%M:%S')}")
+                    st.write("---")
+            else:
+                st.warning("No news articles found for this ticker.")
+        except Exception as e:
+            st.error(f"An error occurred while fetching news: {e}")
+    else:
+        st.info("Enter a stock ticker above to fetch the latest news.")
+
 
 # Tab: Contact Us
 with tabs[4]:
