@@ -342,8 +342,6 @@ with tabs[2]:
 		else:
 			st.info("Enter a stock ticker above to fetch the latest news.")
 
-   
-
 # Tab: Contact Us
 with tabs[4]:
     st.header("Contact Us")
