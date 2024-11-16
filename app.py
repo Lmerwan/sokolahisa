@@ -284,7 +284,7 @@ with tabs[2]:
     else:
         st.warning("Please select at least one stock.")
 # Tab: News
-	with tabs[3]:
+with tabs[3]:
 	st.header("News")
 	st.write("News")
 
